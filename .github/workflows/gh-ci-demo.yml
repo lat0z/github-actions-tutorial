@@ -1,18 +1,24 @@
-name: GitHub Actions CI
+name: Deploy hugo site to gihubpages
 on:
-  pull_request:
-    branches: [main]
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
 jobs:
-  mysite-ci:
+  hugo-github-pages:
+    name: hugo-github-pages
     runs-on: ubuntu-latest
+    strategy:
+        matrix:
+          node-version: [10.x]  
     steps:
-      - name: Checkout main
+      - name: Checkout base branch
         uses: actions/checkout@v2
-      - name: install dependencies
-        run: make deps
-      - name: test code
-        run: make test
-      - name: build code
-        run: make build
-      - name: store artifact
-        run: echo "save artifact where you want"
+        with:
+          token: ${{ secrets.MY_GITHUB_TOKEN }}
+          
+      - name: build hugo
+        uses: ./action/deploy_hugo/
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
